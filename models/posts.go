@@ -1,6 +1,10 @@
 package models
 
-import "github.com/jackc/pgx"
+import (
+	"context"
+
+	"github.com/jackc/pgx/v5"
+)
 
 type Post struct {
 	Title     string  `json:"title,omitempty"`
@@ -16,11 +20,11 @@ type Image struct {
 	Description string `json:"description,omitempty"`
 }
 
-func (p Post) StorePost(db *pgx.Conn) (bool, error) {
-	_, err := db.Exec("INSERT INTO post ($1, $2, $3, $4, $5)", p.Title, p.Body, p.Images, p.CreatedAt, p.UpdatedAt)
+func (p Post) StorePost(db *pgx.Conn) error {
+	_, err := db.Exec(context.Background(), "INSERT INTO post ($1, $2, $3, $4, $5)", p.Title, p.Body, p.Images, p.CreatedAt, p.EditedAt)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }
