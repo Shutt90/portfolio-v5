@@ -3,8 +3,11 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/shutt90/portfolio-v5/models"
 	"github.com/shutt90/portfolio-v5/utils"
@@ -46,12 +49,31 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddPost(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
 	p := models.Post{}
 
-	json.NewDecoder(r.Body).Decode(&p)
+	r.ParseMultipartForm(5)
 
-	err := p.StorePost(utils.Db)
+	file, handler, err := r.FormFile("images")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+	dst, err := os.Create(handler.Filename)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if _, err := io.Copy(dst, file); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println(w, "successfully Uploaded File")
+
+	err = p.StorePost(utils.Db)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("unsuccessful post request"))
