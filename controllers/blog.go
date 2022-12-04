@@ -52,7 +52,10 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
 	p := models.Post{}
 
-	r.ParseMultipartForm(5)
+	err := r.ParseMultipartForm(5)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 
 	file, handler, err := r.FormFile("images")
 	if err != nil {
@@ -60,7 +63,9 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	dst, err := os.Create(handler.Filename)
+	os.Mkdir("uploads", 0755)
+	os.Mkdir("uploads/blogs/", 0755)
+	dst, err := os.Create("uploads/blogs/" + handler.Filename)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -71,9 +76,14 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(w, "successfully Uploaded File")
+	fmt.Println(w, "successfully uploaded file/s")
+
+	var img models.Image
+
+	// get image details
 
 	err = p.StorePost(utils.Db)
+	p.Images = append(p.Images, handler.Filename)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("unsuccessful post request"))
