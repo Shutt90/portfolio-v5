@@ -78,12 +78,12 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(w, "successfully uploaded file/s")
 
-	var img models.Image
+	// var img models.Image
 
 	// get image details
 
 	err = p.StorePost(utils.Db)
-	p.Images = append(p.Images, handler.Filename)
+	// p.Images = append(p.Images, handler.Filename)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("unsuccessful post request"))
