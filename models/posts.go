@@ -29,5 +29,11 @@ func (p Post) StorePost(db *pgx.Conn) error {
 		return err
 	}
 
+	// create batch for images creation
+	if len(p.Images) != 0 {
+		db.PgConn().ExecBatch(context.Background(), "INSERT INTO image (title, url, description) VALUES ($1, $2, $3)")
+
+	}
+
 	return nil
 }
