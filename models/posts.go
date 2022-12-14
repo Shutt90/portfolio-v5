@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -22,7 +23,8 @@ type Image struct {
 }
 
 func (p Post) StorePost(db *pgx.Conn) error {
-	_, err := db.Exec(context.Background(), "INSERT INTO post ($1, $2, $3, $4, $5)", &p.Title, &p.Body, &p.Images, &p.CreatedAt, &p.EditedAt)
+	fmt.Println(p.Title, p.Body, p.Images, p.CreatedAt)
+	_, err := db.Exec(context.Background(), "INSERT INTO blog (title, body, created_at) VALUES ($1, $2, $3)", p.Title, p.Body, p.CreatedAt)
 	if err != nil {
 		return err
 	}

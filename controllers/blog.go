@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -84,6 +85,7 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 	err = p.StorePost(utils.Db)
 	// p.Images = append(p.Images, handler.Filename)
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("data not stored"))
 		return
