@@ -21,7 +21,6 @@ func DbConnect() {
 	if err != nil {
 		log.Fatal("could not connect to db: ", err)
 	}
-	defer conn.Close(context.Background())
 	log.Println("db connection established")
 
 	Db = conn

@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/shutt90/portfolio-v5/models"
 	"github.com/shutt90/portfolio-v5/utils"
@@ -49,8 +50,7 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddPost(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
-	p := models.Post{}
+	w.Header().Set("Content-Type", "multipart/form-data")
 
 	err := r.ParseMultipartForm(5)
 	if err != nil {
@@ -58,6 +58,12 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	file, handler, err := r.FormFile("images")
+	p := models.Post{
+		Title:     r.FormValue("title"),
+		Body:      r.FormValue("body"),
+		CreatedAt: time.Now(),
+	}
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -76,19 +82,12 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(w, "successfully uploaded file/s")
-
-	// var img models.Image
-
-	fmt.Println(r.Body)
-
-	// get image details
-
 	err = p.StorePost(utils.Db)
 	// p.Images = append(p.Images, handler.Filename)
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("unsuccessful post request"))
+		w.Write([]byte("data not stored"))
 		return
 	}
 
